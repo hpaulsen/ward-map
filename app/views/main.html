@@ -1,0 +1,13 @@
+<div ng-controller="MainCtrl">
+	<h2>Households</h2>
+
+	<table>
+		<tbody>
+		<tr ng-repeat="household in households"><td>{{household.address}}</td></tr>
+		</tbody>
+	</table>
+	<div>
+		<div class="list-container" ng-grid="gridOptions">
+		</div>
+	</div>
+</div>
