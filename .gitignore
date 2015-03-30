@@ -1,14 +1,5 @@
-# Include your project-specific ignores in this file
-# Read about how to use .gitignore: https://help.github.com/articles/ignoring-files
-
-*.sass-cache
-*.sublime-*
-
-components
-css
-dist
-index.html
-resume.html
 node_modules
-test/coverage
-test/dist
+dist
+.tmp
+.sass-cache
+bower_components
