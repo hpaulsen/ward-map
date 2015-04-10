@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: openMembershipFile', function () {
+describe('Directive: openRegionFile', function () {
 
   // load the directive's module
   beforeEach(module('wardMapApp'));
@@ -13,8 +13,8 @@ describe('Directive: openMembershipFile', function () {
   }));
 
   it('should make hidden element visible', inject(function ($compile) {
-    element = angular.element('<on-file-load></on-file-load>');
+    element = angular.element('<open-region-file></open-region-file>');
     element = $compile(element)(scope);
-    expect(element.text()).toBe('this is the openMembershipFile directive');
+    expect(element.text()).toBe('this is the openRegionFile directive');
   }));
 });

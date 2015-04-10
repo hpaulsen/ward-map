@@ -9,6 +9,8 @@
 	<!-- build:css(.) styles/vendor.css -->
 	<!-- bower:css -->
 	<link rel="stylesheet" href="bower_components/ng-grid/ng-grid.css" />
+	<link rel="stylesheet" href="bower_components/spectrum/spectrum.css" />
+	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
 	<!-- endbower -->
 	<!-- endbuild -->
 	<!-- build:css(.tmp) styles/main.css -->
@@ -25,9 +27,9 @@
 <div class="container-fluid">
 	<div class="header" ng-controller="NavigationCtrl">
 		<ul class="nav nav-pills pull-right">
-			<li ng-class="{active:isActive('')}"><a ng-href="#">Home</a></li>
+			<li ng-class="{active:isActive('')}"><a ng-href="#">People</a></li>
+			<li ng-class="{active:isActive('/regions')}"><a ng-href="#/regions">Regions</a></li>
 			<li ng-class="{active:isActive('/about')}"><a ng-href="#/about">About</a></li>
-			<li ng-class="{active:isActive('/contact')}"><a ng-href="#">Contact</a></li>
 		</ul>
 		<h3 class="text-muted">WardMap</h3>
 	</div>
@@ -35,18 +37,22 @@
 	<div class="row">
 
 		<div class="col-xs-4" ng-controller="MapCtrl">
-			<div ng-show="geocoding">Please wait, geocoding {{geocodingIndex}} of {{geocodingTotal}}... (Succeeded: {{geocodingSuccess}}, failed: {{geocodingFail}})</div>
-			<on-file-load on-complete="onComplete" delimiter="\t"></on-file-load>
-			<google-map center="map.center" zoom="map.zoom" draggable="true" bounds="bounds">
-				<marker ng-repeat="marker in markers" idKey="'id'" coords="marker" icon="marker.icon" events="events"></marker>
-			</google-map>
+			<!--<div ng-show="geocoding">Please wait, geocoding {{geocodingIndex}} of {{geocodingTotal}}... (Succeeded: {{geocodingSuccess}}, failed: {{geocodingFail}})</div>-->
+			<!--<on-file-load on-complete="onComplete" on-error="error" delimiter="\t"></on-file-load>-->
+			<ui-gmap-google-map control="map.control" center="map.center" zoom="map.zoom" draggable="true" bounds="map.bounds">
+				<ui-gmap-markers models="households" idKey="id" coords="'self'" icon="marker.icon" events="events"></ui-gmap-markers>
+				<ui-gmap-drawing-manager options="drawingManagerOptions" control="drawingManagerControl"></ui-gmap-drawing-manager>
+				<!--<ui-gmap-polygons idKey="id" models="regions"></ui-gmap-polygons>-->
+			</ui-gmap-google-map>
+			<ul>
+				<li ng-repeat="p in map.polys">{{p.getPath()}}</li>
+			</ul>
 		</div>
-
 		<div class="col-xs-8" ng-view></div>
 	</div>
 
 	<div class="footer">
-		<p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
+		<p>Free and Open</p>
 	</div>
 </div>
 
@@ -70,7 +76,7 @@
 </script>
 
 <!-- Manually added -->
-<script src="//maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script src="//maps.googleapis.com/maps/api/js?sensor=false&libraries=drawing"></script>
 
 <!-- build:js(.) scripts/oldieshim.js -->
 <!--[if lt IE 9]>
@@ -106,20 +112,28 @@
 <script src="bower_components/papa-parse/papaparse.js"></script>
 <script src="bower_components/ngstorage/ngStorage.js"></script>
 <script src="bower_components/ng-grid/build/ng-grid.js"></script>
+<script src="bower_components/spectrum/spectrum.js"></script>
+<script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.min.js"></script>
+<script src="bower_components/togeojson/togeojson.js"></script>
+<script src="bower_components/bootstrap-filestyle/src/bootstrap-filestyle.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
 <script src="scripts/vendor/geoxml3.js"></script>
 <script src="scripts/app.js"></script>
-<script src="scripts/controllers/main.js"></script>
+<script src="scripts/controllers/households.js"></script>
+<script src="scripts/services/regionservice.js"></script>
 <script src="scripts/services/peopleservice.js"></script>
 <script src="scripts/controllers/about.js"></script>
 <script src="scripts/controllers/navigation.js"></script>
-<script src="scripts/directives/onfileload.js"></script>
+<script src="scripts/directives/openmembershipfile.js"></script>
 <script src="scripts/services/geocoderservice.js"></script>
 <script src="scripts/controllers/map.js"></script>
 <script src="scripts/controllers/region.js"></script>
+<script src="scripts/directives/openregionfile.js"></script>
+<script src="scripts/services/region.js"></script>
 <!-- endbuild -->
+
 </body>
 </html>

@@ -18,6 +18,50 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
   height: 400px;
 }
 
+h2 {
+  text-align: center;
+  color: #777;
+}
+
+span.fa {
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+span.fa.disabled {
+  cursor: not-allowed;
+}
+
+span.fa.disabled:hover {
+  background-color: inherit;
+}
+
+span.fa:hover {
+  background-color: #aaf;
+}
+
+span.fa.selected {
+  background-color: #ddf;
+}
+
+span.fa.fa-2x {
+  width: 40px;
+  height:40px;
+}
+
+.bootstrap-filestyle {
+  display: inline-block;
+}
+
+.control {
+  text-align: center;
+  vertical-align: middle;
+  padding-bottom: 15px;
+}
+
 /* Space out content a bit */
 body {
   padding-top: 20px;

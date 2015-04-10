@@ -1,0 +1,10 @@
+<div>
+	<h2>Households</h2>
+
+	<div ng-show="geocoding">Please wait, geocoding {{geocodingIndex}} of {{geocodingTotal}}... (Succeeded: {{geocodingSuccess}}, failed: {{geocodingFail}})</div>
+	<open-membership-file on-complete="onComplete" on-error="onError" delimiter="\t"></open-membership-file>
+
+	<div>
+		<div class="list-container" ng-grid="gridOptions"></div>
+	</div>
+</div>

@@ -14,16 +14,20 @@ angular
 		'ngRoute',
 		'ngSanitize',
 		'ui.sortable',
-		'google-maps',
+		'uiGmapgoogle-maps',
 		'ngStorage',
-		'ngGrid'
+		'ngGrid',
+		'angularSpectrumColorpicker'
 	])
 	.config(['$routeProvider',function($routeProvider){
 		$routeProvider.when('/about', {
 			templateUrl: 'views/about.html',
 			controller: 'AboutCtrl'
+		}).when('/regions', {
+			templateUrl: 'views/regions.html',
+			controller: 'regionCtrl'
 		}).otherwise({
-			templateUrl: 'views/main.html',
-			controller: 'MainCtrl'
+			templateUrl: 'views/households.html',
+			controller: 'householdsCtrl'
 		});
 	}]);

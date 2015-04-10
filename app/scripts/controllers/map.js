@@ -8,90 +8,105 @@
  * Controller of the wardMapApp
  */
 angular.module('wardMapApp')
-	.controller('MapCtrl', function ($scope, peopleService, geocoderService) {
+	.controller('MapCtrl', function ($scope, peopleService, regionService) {
 
 		$scope.map = {
 			center: {
 				latitude: 0,
 				longitude: 0
 			},
-			zoom: 1
+			zoom: 1,
+			control: {},
+			bounds: null
 		};
 
-		$scope.markers = [];
+		//$scope.markers = [];
+		$scope.households = peopleService.households;
+		$scope.regions = regionService.regions;
 		$scope.errors = [];
-		$scope.bounds = null;
 
 		$scope.events = {
 			click: function (event, eventType, object) {
-				console.log(object.coords.id);
-				console.log(peopleService.households[object.coords.id]);
+				console.log(object.id);
+				console.log(peopleService.getHouseholdDetail(object.id));
 			}
 		}
 
-		$scope.geocoding = false;
-		$scope.geocodingIndex = 0;
-		$scope.geocodingTotal = 0;
-		$scope.geocodingSuccess = 0;
-		$scope.geocodingFail = 0;
-
-		$scope.onComplete = function(){
-			var data = peopleService.households;
-			$scope.geocoding = true;
-			$scope.geocodingTotal = Object.keys(data).length;
-			var n=null, s=null, e=null, w=null;
-			for (var i in data){
-				var household = data[i];
-				geocoderService.geocodeAddress(household.address1,i)
-					.then(
-					function(a){
-						var household = peopleService.households[a.id];
-						household.formattedAddress = a.formattedAddress;
-						household.geocodeType = a.types;
-						household.geocodePartial = a.partial;
-
-						if (n == null){
-							n = s = a.latitude;
-							e = w = a.longitude;
-						} else {
-							var boundsChanged = false;
-							if (a.latitude > n) {boundsChanged = true; n = a.latitude;}
-							else if (a.latitude < s) {boundsChanged = true; s = a.latitude;}
-							if (a.longitude > e) {boundsChanged = true; e = a.longitude;}
-							else if (a.longitude < w) {boundsChanged = true; w = a.longitude;}
-							if ($scope.bounds === null || boundsChanged){
-								$scope.bounds = {
-									northeast: {
-										latitude: n,
-										longitude: e
-									},
-									southwest: {
-										latitude: s,
-										longitude: w
-									}
-								}
-							}
-						}
-
-						$scope.geocodingIndex++;
-						$scope.geocodingSuccess++;
-						if ($scope.geocodingIndex == $scope.geocodingTotal-1) {
-							$scope.geocoding = false;
-						}
-						a.icon = 'http://maps.google.com/mapfiles/kml/paddle/blu-blank-lv.png';
-						$scope.markers.push(a);
-					},
-					function(e){
-						var household = peopleService.households[e.id];
-						household.error = e;
-						$scope.geocodingIndex++;
-						$scope.geocodingFail++;
-						if ($scope.geocodingIndex == $scope.geocodingTotal-1) {
-							$scope.geocoding = false;
-							$scope.bounds = new google.maps.LatLngBounds(new google.maps.LatLng(s,w),new google.maps.LatLng(n,e));
-						}
-					}
-				);
+		$scope.drawingManagerOptions = {
+			drawingMode: null,
+			drawingControl: true,
+			drawingControlOptions: {
+				position: google.maps.ControlPosition.TOP_CENTER,
+				drawingModes: [
+					google.maps.drawing.OverlayType.POLYGON,
+					google.maps.drawing.OverlayType.CIRCLE,
+					google.maps.drawing.OverlayType.RECTANGLE
+				]
+			},
+			circleOptions: {
+				strokeWeight: 1,
+				clickable: false,
+				fillOpacity: 0.5
+				//editable: true
+			},
+			polygonOptions: {
+				strokeWeight: 1,
+				clickable: false,
+				fillOpacity: 0.5
+				//editable: true
+			},
+			rectangleOptions: {
+				strokeWeight: 1,
+				clickable: false,
+				fillOpacity: 0.5
+				//editable: true
 			}
 		};
+
+		$scope.drawingManagerControl = {
+			getDrawingManager: null
+		};
+
+		$scope.$watch('drawingManagerControl.getDrawingManager',function(){
+			if (typeof $scope.drawingManagerControl.getDrawingManager == "function"){
+				var drawingManager = $scope.drawingManagerControl.getDrawingManager();
+				google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event){
+					var i = regionService.add(event.type,event.overlay,{
+						color:'#'+Math.floor(Math.random()*16777215).toString(16),
+						map: $scope.map.control.getGMap()
+					});
+					$scope.$apply();
+				});
+			}
+		});
+
+		$scope.$watch('regions.length',function(){
+			var mapInstance = $scope.map.control.getGMap(),
+				region = $scope.regions[0],
+				bounds;
+			if (region) {
+				bounds = region.bounds;
+				region.map = mapInstance;
+			}
+			for (var i=1; i<$scope.regions.length; i++){
+				$scope.regions[i].map = mapInstance; // make region visible
+
+				// adjust the map bounds to include the region
+				bounds.union($scope.regions[i].bounds);
+			}
+			if (bounds){
+				var newBounds = {
+					northeast: {
+						latitude: bounds.getNorthEast().lat(),
+						longitude: bounds.getNorthEast().lng()
+					},
+					southwest: {
+						latitude: bounds.getSouthWest().lat(),
+						longitude: bounds.getSouthWest().lng()
+					}
+				}
+				$scope.map.bounds = newBounds;
+			}
+		});
+
 	});

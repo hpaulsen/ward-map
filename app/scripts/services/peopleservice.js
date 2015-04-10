@@ -47,6 +47,14 @@ angular.module('wardMapApp')
 			}
 		};
 
+		this.getHouseholdDetail = function(id){
+			return householdDetail[id];
+		}
+
+		this.getHouseholdMembers = function(id){
+			return householdMembers[id];
+		}
+
 		this.addFilter = function(field, mustBe, mustNotBe){
 			filters.push({
 				field: field,
