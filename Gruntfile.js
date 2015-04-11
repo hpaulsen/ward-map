@@ -404,7 +404,7 @@ module.exports = function (grunt) {
 		  },
 		  pages: {
 			  options: {
-				  remote: 'git@github.com:hpaulsen/wardmap.git',
+				  remote: 'git@github.com:hpaulsen/ward-map.git',
 				  branch: 'gh-pages'
 			  }
 		  }
