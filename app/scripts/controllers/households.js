@@ -26,6 +26,15 @@ angular.module('wardMapApp')
 			console.log(household);
 		}
 
+		$scope.tableColumns = [
+			{ field: 'name', displayName: 'Name' },
+			{ field: 'address1', displayName: 'Address' },
+			{ field: 'phone', displayName: 'Phone' },
+			{ field: 'email', displayName: 'E-mail' },
+			{ field: 'formattedAddress', displayName: 'Geocoded Address' },
+			{ field: 'geocodeType', displayName: 'Geocode Type' },
+		];
+
 		$scope.gridOptions = {
 			data: 'people',
 			showColumnMenu: true,
@@ -38,14 +47,7 @@ angular.module('wardMapApp')
 			"\n" +
 			"</div>"
 			,
-			columnDefs: [
-				{ field: 'name', displayName: 'Name' },
-				{ field: 'address1', displayName: 'Address' },
-				{ field: 'phone', displayName: 'Phone' },
-				{ field: 'email', displayName: 'E-mail' },
-				{ field: 'formattedAddress', displayName: 'Geocoded Address' },
-				{ field: 'geocodeType', displayName: 'Geocode Type' },
-			]
+			columnDefs: 'tableColumns'
 		};
 
 		$scope.geocoding = false;
@@ -58,7 +60,24 @@ angular.module('wardMapApp')
 			alert(error);
 		};
 
+		function analyzeColumns(){
+			if (peopleService.people.length){
+				var dataRow = peopleService.people[0];
+				var columns = [];
+				for (var prop in dataRow){
+					var column = {
+						field: prop,
+						displayName: prop
+					};
+					columns.push(column);
+				}
+				$scope.tableColumns = columns;
+			}
+		}
+
 		$scope.onComplete = function(){
+			analyzeColumns();
+			
 			var data = peopleService.households,
 				bounds = null;
 			$scope.geocoding = true;
