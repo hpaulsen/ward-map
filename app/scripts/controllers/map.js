@@ -85,7 +85,10 @@ angular.module('wardMapApp')
 				region = $scope.regions[0],
 				bounds;
 			if (region) {
-				bounds = region.bounds;
+				bounds = new google.maps.LatLngBounds(
+					new google.maps.LatLng(region.bounds.getSouthWest().lat(),region.bounds.getSouthWest().lng()),
+					new google.maps.LatLng(region.bounds.getNorthEast().lat(),region.bounds.getNorthEast().lng())
+				);
 				region.map = mapInstance;
 			}
 			for (var i=1; i<$scope.regions.length; i++){

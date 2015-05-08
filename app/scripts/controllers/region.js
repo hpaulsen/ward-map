@@ -35,7 +35,10 @@ angular.module('wardMapApp')
 
 		$scope.zoomToRegions = function(){
 			if ($scope.regions.length > 0){
-				var bounds = $scope.regions[0].bounds;
+				var bounds = new google.maps.LatLngBounds(
+					new google.maps.LatLng($scope.regions[0].bounds.getSouthWest().lat(),$scope.regions[0].bounds.getSouthWest().lng()),
+					new google.maps.LatLng($scope.regions[0].bounds.getNorthEast().lat(),$scope.regions[0].bounds.getNorthEast().lng())
+				);
 				for (var i=1; i<$scope.regions.length; i++){
 					bounds = bounds.union($scope.regions[i].bounds);
 				}
@@ -65,7 +68,7 @@ angular.module('wardMapApp')
 			,
 			rowHeight: 38,
 			columnDefs: [
-				{ field: 'name', displayName: 'Region', enableCellEdit: true },
+				{ field: 'name', displayName: 'Name', enableCellEdit: true },
 				{
 					field: 'color',
 					displayName: 'Color',

@@ -77,7 +77,7 @@ angular.module('wardMapApp')
 
 		$scope.onComplete = function(){
 			analyzeColumns();
-			
+
 			var data = peopleService.households,
 				bounds = null;
 			$scope.geocoding = true;

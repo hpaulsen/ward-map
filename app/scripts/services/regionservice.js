@@ -164,29 +164,8 @@
 
 angular.module('wardMapApp')
 	.service('regionService',function($localStorage,Region){
-		var VERSION = '1.0.1';
 
 		this.regions = [];
-
-		// initialize regions
-		//if ($localStorage.regionsVersion !== VERSION){
-		//	delete $localStorage.regions;
-		//	$localStorage.regions = [];
-		//	$localStorage.regionsVersion = VERSION;
-		//}
-		//
-		//if ($localStorage.regions.length){
-		//	for (var i=0; i<$localStorage.regions.length; i++){
-		//		this.regions.push(savedRegionToRegion($localStorage.regions[i]));
-		//	}
-		//}
-		//
-		//this.saveRegions = function(){
-		//	$localStorage.regions = [];
-		//	for (var i=0; i<this.regions.length; i++){
-		//		$localStorage.regions.push(regionToSavedRegion(this.regions[i]));
-		//	}
-		//}
 
 		this.getRegions = function(){ return this.regions; };
 
@@ -208,14 +187,58 @@ angular.module('wardMapApp')
 
 		this.delete = function(region){
 			var i = this.regions.indexOf(region);
-			if (i > -1) this.regions.splice(i,1);
+			if (i > -1){
+				this.regions.splice(i,1);
+				$localStorage.regions.splice(i,1);
+			}
 			region.map = null;
 		};
 
 		this.add = function(type,overlay,options){
-			var region = new Region(type,overlay,options),
+			options.type = type;
+			options.overlay = overlay;
+			var region = new Region(options),
 				index = this.regions.push(region)-1;
-			//this.saveRegions();
+			this.saveRegion(region);
 			return index;
+		};
+
+		var change = function(region){
+			$localStorage.regions[region.saveIndex] = region.toSaveObj();
+		};
+
+		// Load from local storage
+		var VERSION = '1.0.3';
+		if ($localStorage.regionsVersion !== VERSION){
+			// This should be replaced with migration options
+			delete $localStorage.regions;
+			$localStorage.regions = [];
+			$localStorage.regionsVersion = VERSION;
 		}
+
+		if ($localStorage.regions.length){
+			for (var i=0; i<$localStorage.regions.length; i++){
+				var regionOptions = $localStorage.regions[i];
+				regionOptions.saveIndex = i;
+				regionOptions.change = change;
+				this.regions.push(new Region(regionOptions));
+				//var options = {
+				//	saveIndex: i
+				//};
+				//this.regions.push(new Region(options));
+			}
+		}
+
+		this.saveRegion = function(region){
+			$localStorage.regions.push(region.toSaveObj());
+			//var obj = {
+			//	saveIndex: this.regions.indexOf(region),
+			//};
+			//$localStorage.regions.push(obj);
+		};
+
+		//this.loadRegion = function(regionOptions){
+		//	var region = new Region(regionOptions);
+		//};
+
 	});

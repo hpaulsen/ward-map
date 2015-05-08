@@ -26,6 +26,9 @@ angular
 		}).when('/regions', {
 			templateUrl: 'views/regions.html',
 			controller: 'regionCtrl'
+		}).when('/analyze',{
+			templateUrl: 'views/analyze.html',
+			controller: 'AnalyzeCtrl'
 		}).otherwise({
 			templateUrl: 'views/households.html',
 			controller: 'householdsCtrl'
