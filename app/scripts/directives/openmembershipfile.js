@@ -166,14 +166,14 @@ angular.module('wardMapApp')
 		};
 
 		return {
-			template: '<input type="file" accept="text/csv"><script type="text/javascript">$(":file").filestyle({input:false,buttonText:"Load CSV File",badge:false});</script>',
+			template: '<input type="file" accept="text/csv,text/plain,text/tsv,application/vnd.ms-excel"><script type="text/javascript">$(":file").filestyle({input:false,buttonText:"Load CSV File",badge:false});</script>',
 			restrict: 'E',
 			link: function postLink(scope, element, attrs) { // jshint ignore:line
 				element.on('change',function(e){
 					var file = (e.srcElement || e.target).files[0];
-					if (file.type != 'text/csv'){
-						if (typeof scope.error == 'function') scope.error('File type "'+file.type+'" is not supported. Only csv files may be read.');
-					} else {
+					//if (file.type != 'text/csv'){
+					//	if (typeof scope.error == 'function') scope.error('File type "'+file.type+'" is not supported. Only csv files may be read.');
+					//} else {
 						var reader = new FileReader();
 						reader.onload = function(e){
 							var result = csvToArray(e.target.result);
@@ -188,7 +188,7 @@ angular.module('wardMapApp')
 							}
 						};
 						reader.readAsText((e.srcElement || e.target).files[0]);
-					}
+					//}
 				});
 			},
 			scope: {

@@ -77,9 +77,9 @@ angular.module('wardMapApp')
 			link: function postLink(scope, element, attrs) { // jshint ignore:line
 				element.on('change',function(e){
 					var file = (e.srcElement || e.target).files[0];
-					if (file.type != 'application/vnd.google-earth.kml+xml') {
-						if (typeof scope.error == 'function') scope.error('Files of type "'+file.type+'" are not supported. Only kml files may be read at this time.');
-					} else {
+					//if (file.type != 'application/vnd.google-earth.kml+xml') {
+					//	if (typeof scope.error == 'function') scope.error('Files of type "'+file.type+'" are not supported. Only kml files may be read at this time.');
+					//} else {
 						var reader = new FileReader();
 						reader.onload = function(e){
 							var dom = (new DOMParser()).parseFromString(e.target.result,'text/xml');
@@ -99,7 +99,7 @@ angular.module('wardMapApp')
 							}
 						};
 						reader.readAsText(file);
-					}
+					//}
 				});
 			},
 			scope: {
