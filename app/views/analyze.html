@@ -7,12 +7,18 @@
 		<select ng-show="regions.length>0" ng-options="region as region.name for region in regions" ng-model="selectedRegion"></select>
 	</div>
 
-	<div>
-		<h3>Results</h3>
-		<div ng-show="regions.length==0">No regions are loaded!</div>
-		<div ng-show="people.length==0">There are no placemarks to analyze!</div>
-		<div ng-show="regions.length>0&&people.length>0">
-			<div ng-repeat="filter in filters">{{filter.name}}: {{filter.count}}</div>
+	<div class="row">
+		<div class="col-xs-4">
+			<h3>Results</h3>
+			<div ng-show="regions.length==0">No regions are loaded!</div>
+			<div ng-show="people.length==0">There are no placemarks to analyze!</div>
+			<div ng-show="regions.length>0&&people.length>0">
+				<div ng-repeat="filter in filters">{{filter.name}}: {{filter.count}}</div>
+			</div>
+		</div>
+
+		<div class="col-xs-8">
+			<div class="list-container" ng-grid="gridOptions"></div>
 		</div>
 	</div>
 

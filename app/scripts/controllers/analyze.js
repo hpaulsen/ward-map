@@ -11,9 +11,34 @@ angular.module('wardMapApp')
   .controller('AnalyzeCtrl', function ($scope, regionService, peopleService) {
 		$scope.regions = regionService.regions;
 		$scope.people = peopleService.people;
+		$scope.filteredPeople = [];
 		$scope.selectedRegion = {};
 
 		$scope.filteredData = [];
+
+		$scope.tableColumns = [
+			{ field: 'name', displayName: 'Name' },
+			{ field: 'address1', displayName: 'Address' },
+			{ field: 'phone', displayName: 'Phone' },
+			{ field: 'email', displayName: 'E-mail' },
+			{ field: 'formattedAddress', displayName: 'Geocoded Address' },
+			{ field: 'geocodeType', displayName: 'Geocode Type' },
+		];
+
+		$scope.gridOptions = {
+			data: 'filteredPeople',
+			showColumnMenu: true,
+			rowTemplate:
+			"<div ng-click=\"rowClick(row.entity)\" ng-style=\"{ 'cursor': row.cursor }\" ng-repeat=\"col in renderedColumns\" ng-class=\"col.colIndex()\" class=\"ngCell {{col.cellClass}}\">\r" +
+			"\n" +
+			"\t<div class=\"ngVerticalBar\" ng-style=\"{height: rowHeight}\" ng-class=\"{ ngVerticalBarVisible: !$last }\">&nbsp;</div>\r" +
+			"\n" +
+			"\t<div ng-cell></div>\r" +
+			"\n" +
+			"</div>"
+			,
+			columnDefs: 'tableColumns'
+		};
 
 		var customFilters = [
 				{
@@ -107,7 +132,7 @@ angular.module('wardMapApp')
 							field: field,
 							testValue: testValue,
 							filter: function(item){
-								return item[this.field] === this.testValue;
+								return (typeof item != 'undefined') && (typeof item[this.field] != 'undefined') && (item[this.field] === this.testValue);
 							}
 						});
 					}
@@ -136,9 +161,14 @@ angular.module('wardMapApp')
 		var calculateFilters = function(){
 			// Figure out which members are in the area
 			var households = [];
+			$scope.filteredPeople.length = 0;
 			for (var i=0; i<peopleService.households.length; i++){
 				if ($scope.selectedRegion && typeof $scope.selectedRegion.contains != 'undefined' && $scope.selectedRegion.contains(new google.maps.LatLng(peopleService.households[i].latitude,peopleService.households[i].longitude))){
 					households.push(peopleService.households[i]);
+					var people = peopleService.getHouseholdMembers(peopleService.households[i].id);
+					for (var k=0; k<people.length; k++) {
+						$scope.filteredPeople.push(peopleService.people[people[k]]);
+					}
 				}
 			}
 
