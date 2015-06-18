@@ -263,7 +263,7 @@ angular.module('wardMapApp')
 						};
 						localCache.setLocalLocation(task.address,parsedResult);
 						parsedResult.id = task.id;
-						task.d.resolve(result);
+						task.d.resolve(parsedResult);
 					} else if (status === google.maps.GeocoderStatus.ZERO_RESULTS) {
 						task.d.reject({
 							type: 'zero',
@@ -316,6 +316,10 @@ angular.module('wardMapApp')
 			refresh: function(address, id){
 				localCache.purgeLocalLocation(address);
 				return addToQueue(address,id);
+			},
+
+			purge: function(){
+				localCache.purgeLocalLocations();
 			},
 
 			manual: function(address, latitude, longitude){

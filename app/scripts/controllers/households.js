@@ -60,6 +60,10 @@ angular.module('wardMapApp')
 			alert(error);
 		};
 
+		$scope.clearGeocodes = function(){
+			geocoderService.purge();
+		};
+
 		function analyzeColumns(){
 			if (peopleService.people.length){
 				var dataRow = peopleService.people[0];
@@ -91,7 +95,6 @@ angular.module('wardMapApp')
 					.then(
 					function(a){
 						var household = peopleService.households[a.id];
-						if (typeof household == 'undefined') console.log(a);
 						household.formattedAddress = a.formattedAddress;
 						household.geocodeType = a.types;
 						household.geocodePartial = a.partial;
