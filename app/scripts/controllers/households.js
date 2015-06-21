@@ -8,35 +8,46 @@
  * Controller of the wardMapApp
  */
 angular.module('wardMapApp')
-	.controller('householdsCtrl', function ($scope, peopleService, geocoderService) {
+	.controller('householdsCtrl', function ($rootScope, $scope, peopleService, geocoderService, Marker) {
 		$scope.people = peopleService.people;
 		$scope.households = peopleService.households;
-		$scope.bounds = {
-			northeast: {
-				latitude: null,
-				longitude: null
-			},
-			southwest: {
-				latitude: null,
-				longitude: null
+		$scope.bounds = null;
+
+		function fillBounds(){
+			if ($scope.households.length > 0){
+				var i=0;
+				while (i<$scope.households.length && typeof $scope.households[i].marker == 'undefined' || $scope.households[i].marker == null)
+					i++;
+				if (i<$scope.households.length){
+					var pos = $scope.households[i].marker.marker.getPosition();
+					$scope.bounds = new google.maps.LatLngBounds(pos,pos);
+					for (i=i; i<$scope.households.length; i++){
+						if (typeof $scope.households[i].marker != 'undefined' && $scope.households[i].marker != null)
+							$scope.bounds.extend($scope.households[i].marker.marker.getPosition());
+					}
+				} else {
+					$scope.bounds = new google.maps.LatLngBounds(new google.maps.LatLng(0,0),new google.maps.LatLng(0,0));
+				}
+			} else {
+				$scope.bounds = new google.maps.LatLngBounds(new google.maps.LatLng(0,0),new google.maps.LatLng(0,0));
 			}
-		};
+		}
+
+		fillBounds();
 
 		$scope.rowClick = function(household){
 			console.log(household);
-		}
+		};
 
 		$scope.tableColumns = [
 			{ field: 'name', displayName: 'Name' },
-			{ field: 'address1', displayName: 'Address' },
-			{ field: 'phone', displayName: 'Phone' },
-			{ field: 'email', displayName: 'E-mail' },
+			{ field: 'address', displayName: 'Address' },
 			{ field: 'formattedAddress', displayName: 'Geocoded Address' },
-			{ field: 'geocodeType', displayName: 'Geocode Type' },
+			{ field: 'geocodeApproximate', displayName: 'Location is Accurate', cellTemplate: '<div class="ngCellText">{{row.getProperty(col.field) | yes_no_inverse}}</div>' }
 		];
 
 		$scope.gridOptions = {
-			data: 'people',
+			data: 'households',
 			showColumnMenu: true,
 			rowTemplate:
 			"<div ng-click=\"rowClick(row.entity)\" ng-style=\"{ 'cursor': row.cursor }\" ng-repeat=\"col in renderedColumns\" ng-class=\"col.colIndex()\" class=\"ngCell {{col.cellClass}}\">\r" +
@@ -64,26 +75,12 @@ angular.module('wardMapApp')
 			geocoderService.purge();
 		};
 
-		function analyzeColumns(){
-			if (peopleService.people.length){
-				var dataRow = peopleService.people[0];
-				var columns = [];
-				for (var prop in dataRow){
-					var column = {
-						field: prop,
-						displayName: prop
-					};
-					columns.push(column);
-				}
-				$scope.tableColumns = columns;
-			}
-		}
+		$scope.zoomToMarkers = function(){
+			$rootScope.map.control.getGMap().fitBounds($scope.bounds);
+		};
 
 		$scope.onComplete = function(){
-			analyzeColumns();
-
-			var data = peopleService.households,
-				bounds = null;
+			var data = peopleService.households;
 			$scope.geocoding = true;
 			$scope.geocodingTotal = Object.keys(data).length;
 			//var n=null, s=null, e=null, w=null;
@@ -91,32 +88,32 @@ angular.module('wardMapApp')
 				var j = typeof data[i];
 				if (j !== "object") continue;
 				var household = data[i];
-				geocoderService.geocodeAddress(household.address1,i)
+				geocoderService.geocodeAddress(household.address,i)
 					.then(
 					function(a){
 						var household = peopleService.households[a.id];
 						household.formattedAddress = a.formattedAddress;
-						household.geocodeType = a.types;
-						household.geocodePartial = a.partial;
-						household.latitude = a.latitude;
-						household.longitude = a.longitude;
-						household.icon = 'http://maps.google.com/mapfiles/kml/paddle/blu-blank-lv.png';
-
-						var latlng = new google.maps.LatLng(a.latitude, a.longitude);
-						if (bounds == null){
-							bounds = new google.maps.LatLngBounds(latlng,latlng);
-						} else {
-							bounds.extend(latlng);
+						household.geocodeApproximate = a.types[0] != 'street_address' && a.types[0] != 'premise' && a.types[0] != 'subpremise' && a.types[0] != 'park';
+						var icon = household.geocodeApproximate ? 'https://maps.google.com/mapfiles/kml/paddle/pause-lv.png' : 'https://maps.google.com/mapfiles/kml/paddle/blu-blank-lv.png',
+							marker = peopleService.findMarker(a.latitude, a.longitude);
+						if (marker === false){
+							marker = new Marker(a.latitude, a.longitude, icon, {});
+							peopleService.addMarker(marker);
 						}
+						marker.addHousehold(household);
+
+						//google.maps.event.addListener(marker.marker,'click',function(a){console.log(a);});
+
+						if ($scope.bounds == null)
+							$scope.bounds = new google.maps.LatLngBounds(marker.marker.getPosition(),marker.marker.getPosition());
+						else
+							$scope.bounds.extend(marker.marker.getPosition());
 
 						$scope.geocodingIndex++;
 						$scope.geocodingSuccess++;
 						if ($scope.geocodingIndex == $scope.geocodingTotal-1) {
 							$scope.geocoding = false;
-							$scope.bounds.northeast.latitude = bounds.getNorthEast().lat();
-							$scope.bounds.northeast.longitude = bounds.getNorthEast().lng();
-							$scope.bounds.southwest.latitude = bounds.getSouthWest().lat();
-							$scope.bounds.southwest.longitude = bounds.getSouthWest().lng();
+							$rootScope.map.control.getGMap().fitBounds($scope.bounds);
 						}
 					},
 					function(e){
@@ -126,10 +123,6 @@ angular.module('wardMapApp')
 						$scope.geocodingFail++;
 						if ($scope.geocodingIndex == $scope.geocodingTotal-1) {
 							$scope.geocoding = false;
-							$scope.bounds.northeast.latitude = bounds.getNorthEast().lat();
-							$scope.bounds.northeast.longitude = bounds.getNorthEast().lng();
-							$scope.bounds.southwest.latitude = bounds.getSouthWest().lat();
-							$scope.bounds.southwest.longitude = bounds.getSouthWest().lng();
 						}
 					}
 				);

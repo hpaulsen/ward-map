@@ -12,17 +12,15 @@ angular.module('wardMapApp')
 		$scope.regions = regionService.regions;
 		$scope.people = peopleService.people;
 		$scope.filteredPeople = [];
-		$scope.selectedRegion = {};
+		$scope.selectedRegion = null;
 
 		$scope.filteredData = [];
 
 		$scope.tableColumns = [
 			{ field: 'name', displayName: 'Name' },
-			{ field: 'address1', displayName: 'Address' },
-			{ field: 'phone', displayName: 'Phone' },
-			{ field: 'email', displayName: 'E-mail' },
+			{ field: 'address', displayName: 'Address' },
 			{ field: 'formattedAddress', displayName: 'Geocoded Address' },
-			{ field: 'geocodeType', displayName: 'Geocode Type' },
+			{ field: 'geocodeApproximate', displayName: 'Location is Accurate', cellTemplate: '<div class="ngCellText">{{row.getProperty(col.field) | yes_no_inverse}}</div>' }
 		];
 
 		$scope.gridOptions = {
@@ -68,7 +66,6 @@ angular.module('wardMapApp')
 		$scope.MAX_VALUE_COUNT = 4;
 
 		var selectFilters = function(){
-			console.log('selecting filters');
 			// Analyze fields for unique values
 			var fieldValueCounts = {};
 			// Note: this method assumes all items are identical...
@@ -163,12 +160,20 @@ angular.module('wardMapApp')
 			var households = [];
 			$scope.filteredPeople.length = 0;
 			for (var i=0; i<peopleService.households.length; i++){
-				if ($scope.selectedRegion && typeof $scope.selectedRegion.contains != 'undefined' && $scope.selectedRegion.contains(new google.maps.LatLng(peopleService.households[i].latitude,peopleService.households[i].longitude))){
+				if ($scope.selectedRegion === null || (
+						$scope.selectedRegion &&
+						typeof $scope.selectedRegion.contains != 'undefined' &&
+						peopleService.households[i].marker != null &&
+						$scope.selectedRegion.contains(peopleService.households[i].marker.marker.getPosition())
+					)){
 					households.push(peopleService.households[i]);
-					var people = peopleService.getHouseholdMembers(peopleService.households[i].id);
+					peopleService.households[i].setVisible(true,true);
+					var people = peopleService.households[i].people;
 					for (var k=0; k<people.length; k++) {
-						$scope.filteredPeople.push(peopleService.people[people[k]]);
+						$scope.filteredPeople.push(peopleService.households[i].people[k]);
 					}
+				} else {
+					peopleService.households[i].setVisible(false,true);
 				}
 			}
 
@@ -176,9 +181,9 @@ angular.module('wardMapApp')
 			for (var i=0; i<$scope.filters.length; i++){
 				$scope.filters[i].count = 0;
 				for (var j=0; j<households.length; j++){
-					var people = peopleService.getHouseholdMembers(households[j].id);
+					var people = peopleService.households[j].people;
 					for (var k=0; k<people.length; k++){
-						if ($scope.filters[i].filter(peopleService.people[people[k]]))
+						if ($scope.filters[i].filter(people[k]))
 							$scope.filters[i].count++;
 					}
 				}
@@ -186,6 +191,8 @@ angular.module('wardMapApp')
 		};
 
 		$scope.$watch('selectedRegion',function(){
+			if ($scope.selectedRegion != null)
+				$scope.selectedRegion.zoom();
 			if (peopleService.people.length > 0){
 				if (availableFilters.length == 0){
 					selectFilters();

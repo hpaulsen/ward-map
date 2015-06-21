@@ -8,9 +8,9 @@
  * Controller of the wardMapApp
  */
 angular.module('wardMapApp')
-	.controller('MapCtrl', function ($scope, peopleService, regionService) {
+	.controller('MapCtrl', function ($rootScope, $scope, peopleService, regionService) {
 
-		$scope.map = {
+		$rootScope.map = {
 			center: {
 				latitude: 0,
 				longitude: 0
@@ -30,7 +30,7 @@ angular.module('wardMapApp')
 				console.log(object.id);
 				console.log(peopleService.getHouseholdDetail(object.id));
 			}
-		}
+		};
 
 		$scope.drawingManagerOptions = {
 			drawingMode: null,
@@ -73,7 +73,7 @@ angular.module('wardMapApp')
 				google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event){
 					var i = regionService.add(event.type,event.overlay,{
 						color:'#'+Math.floor(Math.random()*16777215).toString(16),
-						map: $scope.map.control.getGMap()
+						map: $rootScope.map.control.getGMap()
 					});
 					$scope.$apply();
 				});
@@ -81,7 +81,7 @@ angular.module('wardMapApp')
 		});
 
 		$scope.$watch('regions.length',function(){
-			var mapInstance = $scope.map.control.getGMap(),
+			var mapInstance = $rootScope.map.control.getGMap(),
 				region = $scope.regions[0],
 				bounds;
 			if (region) {
@@ -107,8 +107,8 @@ angular.module('wardMapApp')
 						latitude: bounds.getSouthWest().lat(),
 						longitude: bounds.getSouthWest().lng()
 					}
-				}
-				$scope.map.bounds = newBounds;
+				};
+				$rootScope.map.bounds = newBounds;
 			}
 		});
 

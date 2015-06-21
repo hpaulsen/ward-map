@@ -34,3 +34,17 @@ angular
 			controller: 'householdsCtrl'
 		});
 	}]);
+
+angular.module('wardMapApp').filter('yes_no',function(){
+	return function(text,length,end){
+		if (text) return 'Yes';
+		else return 'No';
+	}
+});
+
+angular.module('wardMapApp').filter('yes_no_inverse',function(){
+	return function(text,length,end){
+		if (text) return 'No';
+		else return 'Yes';
+	}
+});

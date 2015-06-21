@@ -4,7 +4,9 @@
 	<div>
 		<h3>Select regions</h3>
 		<div ng-show="regions.length==0">No regions are loaded!</div>
-		<select ng-show="regions.length>0" ng-options="region as region.name for region in regions" ng-model="selectedRegion"></select>
+		<select ng-show="regions.length>0" ng-options="region as region.name for region in regions" ng-model="selectedRegion">
+			<option value="">All</option>
+		</select>
 	</div>
 
 	<div class="row">

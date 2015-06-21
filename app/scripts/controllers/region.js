@@ -6,32 +6,32 @@ angular.module('wardMapApp')
 
 		$scope.rowClick = function(region){
 			console.log(region);
-		}
+		};
 
 		$scope.onError = function(error){
 			alert(error);
-		}
+		};
 
 		$scope.onComplete = function(){
-		}
+		};
 
 		$scope.toggleItem = function(item){
 			item.visible = !item.visible;
-		}
+		};
 
 		$scope.deleteItem = function(item){
 			if (confirm("Are you sure you want to delete this region?")){
 				regionService.delete(item);
 			}
-		}
+		};
 
 		$scope.editItem = function(item){
 			item.editable = !item.editable;
-		}
+		};
 
 		$scope.zoomToItem = function(item){
 			item.zoom();
-		}
+		};
 
 		$scope.zoomToRegions = function(){
 			if ($scope.regions.length > 0){
@@ -45,7 +45,7 @@ angular.module('wardMapApp')
 				var map = $scope.regions[0].map;
 				map.fitBounds(bounds);
 			}
-		}
+		};
 
 		$scope.deleteRegions = function(){
 			if ($scope.regions.length > 0 && confirm("Are you sure you want to delete all regions?")){
@@ -53,7 +53,7 @@ angular.module('wardMapApp')
 					regionService.delete($scope.regions[0]);
 				}
 			}
-		}
+		};
 
 		$scope.gridOptions = {
 			data: 'regions',

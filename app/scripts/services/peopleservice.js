@@ -9,51 +9,50 @@
  */
 angular.module('wardMapApp')
 	.service('peopleService', function peopleService() {
-		var people = [], // simple array of people
+		var people = [], // simple array of all people
+			markers = {}, // 3d markers array indexed by lat->lng
 			householdDetail = {}, // household data, indexed by household id
 			householdMembers = {}, // array of household member indices, indexed by household id
-			householdLocations = {}, // three-dimensional array, indexed by latitude=>longitude=>householdId
 			filters = []; // array of {field: "fieldName", include: "singleValue"|["value1","value2"], exclude:"singleValue"|["value1","value2"]}
 
 		this.people = []; // filtered
 		this.households = []; // filtered
 
-		this.addPerson = function(person,household){
-			if (!householdDetail[household.id]) {
-				householdDetail[household.id] = household;
-				householdMembers[household.id] = [];
-				if (person.position == 'Head of Household') householdDetail[household.id].name = person.name;
+		this.addPerson = function(person){
+			people.push(person);
+			if (this.personMatchesFilter(person)) this.people.push(person);
+			if (this.households.indexOf(person.household)<0) this.households.push(person.household);
+		};
+
+		this.findMarker = function(latitude,longitude){
+			var latStr = latitude.toFixed(8),
+				lngStr = longitude.toFixed(8);
+			if (typeof markers[latStr] == 'undefined') return false;
+			else if (typeof markers[latStr][lngStr] == 'undefined') return false;
+			else return markers[latStr][lngStr];
+		};
+
+		this.addMarker = function(marker){
+			var pos = marker.marker.getPosition(),
+				lat = pos.lat().toFixed(8),
+				lng = pos.lng().toFixed(8);
+			if (typeof markers[lat] == 'undefined') {
+				markers[lat] = {};
+				markers[lat][lng] = marker;
+			} else if (typeof markers[lat][lng] == 'undefined') {
+				markers[lat][lng] = marker;
 			} else {
-				if (person.position == 'Spouse'){
-					var headParts = householdDetail[household.id].name.split(','),
-						spouseParts = person.name.split(',');
-					if (headParts[0] == spouseParts[0]){
-						householdDetail[household.id].name = headParts[0]+','+headParts[1]+' &'+spouseParts[1];
-					} else {
-						householdDetail[household.id].name += ' & '+person.name;
-					}
-				}
-			}
-			var i = people.push(person);
-			householdMembers[household.id].push(i);
-			if (this.personMatchesFilter(person)){
-				this.people.push(person);
-				if (this.households.length < 1 || this.households[this.households.length-1].id != household.id){
-					this.households.push(householdDetail[household.id]);
-				}
-				//if (typeof this.households[person.household] == 'undefined'){
-				//	this.households[person.household] = household;
-				//}
+				throw 'Marker already exists!'
 			}
 		};
 
-		this.getHouseholdDetail = function(id){
-			return householdDetail[id];
-		};
+		//this.getHouseholdDetail = function(id){
+		//	return householdDetail[id];
+		//};
 
-		this.getHouseholdMembers = function(id){
-			return householdMembers[id];
-		};
+		//this.getHouseholdMembers = function(id){
+		//	return householdMembers[id];
+		//};
 
 		this.addFilter = function(field, mustBe, mustNotBe){
 			filters.push({
@@ -69,13 +68,13 @@ angular.module('wardMapApp')
 
 		this.personMatchesFilter = function(person){
 			var result = true;
-			for (var i=0; i<filters.length; i++){
-				if (typeof person[filters[i].field] !== undefined){
-					if (typeof filters[i].include !== undefined && filters[i]){
-
-					}
-				}
-			}
+			//for (var i=0; i<filters.length; i++){
+			//	if (typeof person[filters[i].field] !== undefined){
+			//		if (typeof filters[i].include !== undefined && filters[i]){
+			//
+			//		}
+			//	}
+			//}
 			return result;
 		};
 	});

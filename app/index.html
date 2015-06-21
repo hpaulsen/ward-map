@@ -41,7 +41,7 @@
 			<!--<div ng-show="geocoding">Please wait, geocoding {{geocodingIndex}} of {{geocodingTotal}}... (Succeeded: {{geocodingSuccess}}, failed: {{geocodingFail}})</div>-->
 			<!--<on-file-load on-complete="onComplete" on-error="error" delimiter="\t"></on-file-load>-->
 			<ui-gmap-google-map control="map.control" center="map.center" zoom="map.zoom" draggable="true" bounds="map.bounds">
-				<ui-gmap-markers models="households" idKey="id" coords="'self'" icon="marker.icon" events="events"></ui-gmap-markers>
+				<!--<ui-gmap-markers models="households" idKey="id" coords="'self'" icon="'icon'" options="'markerOptions'" events="'events'"></ui-gmap-markers>-->
 				<ui-gmap-drawing-manager options="drawingManagerOptions" control="drawingManagerControl"></ui-gmap-drawing-manager>
 				<!--<ui-gmap-polygons idKey="id" models="regions"></ui-gmap-polygons>-->
 			</ui-gmap-google-map>
@@ -135,6 +135,9 @@
 <script src="scripts/directives/openregionfile.js"></script>
 <script src="scripts/services/region.js"></script>
 <script src="scripts/controllers/analyze.js"></script>
+<script src="scripts/services/marker.js"></script>
+<script src="scripts/services/household.js"></script>
+<script src="scripts/services/person.js"></script>
 <!-- endbuild -->
 
 </body>
